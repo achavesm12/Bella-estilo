@@ -33,7 +33,7 @@ Esto permite un código más mantenible, escalable y fácil de probar.
 
 ---
 
-## 🛠️ Tecnologías utilizadas
+## Tecnologías utilizadas
 
 - **C#**
 - **ASP.NET Core MVC**
