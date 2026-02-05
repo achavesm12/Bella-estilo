@@ -1,0 +1,19 @@
+﻿@model List<BelaEstilo.Application.DTOs.PedidoPersonalizadoCriterioDTO>
+
+<h2>Prueba de checkboxes</h2>
+
+<form method="post" asp-action="TestCheckboxBinding">
+    @for (int i = 0; i < Model.Count; i++)
+    {
+        <div class="mb-2">
+            <input type="hidden" name="[@(i)].Seleccionado" value="false" />
+            <input type="checkbox" name="[@(i)].Seleccionado" value="true"
+            @(Model[i].Seleccionado ? "checked" : "") />
+            <label>@Model[i].NombreCriterio</label>
+            <input type="hidden" name="[@(i)].NombreCriterio" value="@Model[i].NombreCriterio" />
+        </div>
+    }
+
+    <button type="submit" class="btn btn-primary">Enviar</button>
+</form>
+

@@ -1,0 +1,33 @@
+﻿@model BelaEstilo.Application.DTOs.LoginDTO
+
+@{
+    Layout = "~/Views/Shared/_LayoutLogin.cshtml";
+    ViewData["Title"] = "Iniciar Sesión";
+}
+
+<h2 class="text-center mb-4">Iniciar Sesión</h2>
+
+<form asp-action="Index" method="post">
+    <div class="mb-3">
+        <label asp-for="Correo" class="form-label">Correo electrónico</label>
+        <input asp-for="Correo" class="form-control" placeholder="ejemplo@correo.com" />
+        <span asp-validation-for="Correo" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Contrasenna" class="form-label">Contraseña</label>
+        <input asp-for="Contrasenna" class="form-control" type="password" placeholder="••••••••" />
+        <span asp-validation-for="Contrasenna" class="text-danger"></span>
+    </div>
+
+    @if (ViewData["Error"] != null)
+    {
+        <div class="alert alert-danger">@ViewData["Error"]</div>
+    }
+
+    <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

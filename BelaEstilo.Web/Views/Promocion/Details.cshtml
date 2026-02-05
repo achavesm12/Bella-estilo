@@ -1,0 +1,83 @@
+﻿@model BelaEstilo.Application.DTOs.PromocionDTO
+
+@{
+    ViewData["Title"] = "Detalle de la Promoción";
+}
+
+<h1 class="text-center py-3" style="background-color: #f8d7da; color: #721c24;">Detalle de la Promoción</h1>
+
+<div class="container">
+    <div class="card shadow-lg mb-4">
+        <div class="text-center card-header ">
+            <h4 class="mb-0">@Model.Nombre</h4>
+        </div>
+        <div class="card-body">
+
+            <dl class="row">
+                <dt class="col-sm-4">Descuento aplicado:</dt>
+                @* <dd class="col-sm-8">
+                    @Model.Descuento?.ToString("P0") <!-- Ej: 20% -->
+                </dd> *@
+                <dd class="col-sm-8">
+                    @* @((Model.Descuento ?? 0) / 100).ToString("P0") *@
+                    @Model.Descuento?.ToString("P0")
+                </dd>
+
+                <dt class="col-sm-4">Fecha de inicio:</dt>
+                <dd class="col-sm-8">
+                    @Model.FechaInicio?.ToShortDateString()
+                </dd>
+
+                <dt class="col-sm-4">Fecha de finalización:</dt>
+                <dd class="col-sm-8">
+                    @Model.FechaFin?.ToShortDateString()
+                </dd>
+            </dl>
+
+            <hr />
+
+            <h4 class="mt-4 text-center">Productos en Promoción</h4>
+
+            @if (Model.IdProducto != null && Model.IdProducto.Any())
+            {
+                <ul class="list-group">
+                    @foreach (var producto in Model.IdProducto)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            @producto.Nombre
+                            <span class="badge bg-primary rounded-pill">$@producto.Precio?.ToString("F2")</span>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-muted">No hay productos asociados a esta promoción.</p>
+            }
+
+            <hr />
+
+            <h4 class="mt-4 text-center">Categorías en Promoción</h4>
+
+            @if (Model.IdCategoria != null && Model.IdCategoria.Any())
+            {
+                <ul class="list-group">
+                    @foreach (var categoria in Model.IdCategoria)
+                    {
+                        <li class="list-group-item">
+                            @categoria.Nombre
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-muted">No hay categorías asociadas a esta promoción.</p>
+            }
+        </div>
+    </div>
+
+    <div class="text-center">
+        <a class="btn btn-info" style="background-color: #c2185b; color: white;" asp-action="Index">Regresar al listado</a>
+    </div>
+</div>

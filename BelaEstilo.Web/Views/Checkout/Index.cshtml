@@ -1,0 +1,357 @@
+﻿@model BelaEstilo.Application.DTOs.CheckoutDTO
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+@{
+    ViewData["Title"] = "Registrar Pedido";
+}
+
+<h2 class="mb-3">Registrar Pedido</h2>
+<input type="hidden" name="__RequestVerificationToken" value="@Antiforgery.GetAndStoreTokens(Context).RequestToken" />
+
+@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+<!-- ====== ENCABEZADO ====== -->
+<div class="card mb-3">
+    <div class="card-header">Encabezado</div>
+    <div class="card-body row g-3">
+        <div class="col-md-3">
+            <label class="form-label fw-bold">Fecha:</label>
+            <input class="form-control" value="@Model.Fecha.ToString("dd/MM/yyyy")" readonly />
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label fw-bold">Usuario:</label>
+            <select id="ddlUsuario" class="form-select">
+                <option value="">Seleccionar…</option>
+                @foreach (var u in (IEnumerable<BelaEstilo.Application.DTOs.UsuarioDTO>)ViewBag.Usuarios)
+                {
+                    <option value="@u.IdUsuario" selected="@(u.IdUsuario == Model.IdUsuario ? "selected" : null)">
+                        @u.Nombre
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-5">
+            <label class="form-label fw-bold">Detalle del usuario:</label>
+            <div id="userDetail" class="border rounded p-2 bg-light">
+                @(!string.IsNullOrWhiteSpace(Model.UsuarioResumen) ? Model.UsuarioResumen : "—")
+            </div>
+        </div>
+
+        <div class="col-md-8"> <label class="form-label fw-bold">Dirección de envío detallada:</label>
+            <textarea id="txtDireccion" class="form-control" rows="2">@Model.DireccionEnvio</textarea> </div>
+
+        @* <div class="col-md-8 mb-3">
+            <label asp-for="DireccionEnvio" class="form-label fw-bold"></label>
+            <textarea asp-for="DireccionEnvio" class="form-control" rows="2"></textarea>
+            <span asp-validation-for="DireccionEnvio" class="text-danger"></span>
+        </div>
+ *@
+        <div class="col-md-4">
+            <label class="form-label fw-bold">Estado:</label>
+            <input class="form-control" value="@Model.Estado" readonly />
+        </div>
+    </div>
+</div>
+
+<!-- ====== DETALLE ====== -->
+<div class="card mb-3">
+    <div class="card-header">Detalle de compra</div>
+    <div class="card-body table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th style="width:120px;" class="text-end">Precio unitario</th>
+                    <th style="width:160px;">Cantidad</th>
+                    <th style="width:140px;" class="text-end">Subtotal</th>
+                    <th style="width:120px;" class="text-end">IVA (13%)</th>
+                    <th style="width:160px;" class="text-end">Total línea</th>
+                    <th style="width:100px;"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Lineas != null && Model.Lineas.Any())
+                {
+                    for (int i = 0; i < Model.Lineas.Count; i++)
+                    {
+                        var l = Model.Lineas[i];
+                        var unit = l.PrecioUnitario;
+                        var sub = unit * l.Cantidad;
+                        var iva = Math.Round(sub * 0.13m, 2);
+                        var totLinea = sub + iva;
+
+                        <tr data-lineid="@l.LineId" data-index="@i">
+                            <td>
+                                <div class="fw-semibold">@l.Nombre</div>
+                                @if (l.EsPersonalizado && l.Criterios != null && l.Criterios.Any())
+                                {
+                                    <div class="small text-muted">
+                                        @foreach (var c in l.Criterios)
+                                        {
+                                            <div>@c.NombreCriterio: @c.OpcionSeleccionada (+₡@c.CostoExtra.ToString("N2"))</div>
+                                        }
+                                    </div>
+                                }
+                            </td>
+
+                            <td class="text-end">₡@unit.ToString("N2")</td>
+
+                            <td>
+                                <input type="number"
+                                       name="cantidad"
+                                       min="0"
+                                       value="@l.Cantidad"
+                                       class="form-control cantidad-input"
+                                       data-lineid="@l.LineId"
+                                       @* aca *@@* 
+                                       data-esPersonalizado="@l.EsPersonalizado.ToString().ToLower()" *@
+                                       data-espersonalizado="@l.EsPersonalizado.ToString().ToLower()" />
+                            </td>
+
+                            <td class="text-end">₡@sub.ToString("N2")</td>
+                            <td class="text-end">₡@iva.ToString("N2")</td>
+                            <td class="text-end fw-semibold">₡@totLinea.ToString("N2")</td>
+
+                            <td class="text-end">
+                                <form asp-action="UpdateCantidad" method="post" onsubmit="return confirm('¿Eliminar esta línea?');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="lineId" value="@l.LineId" />
+                                    <input type="hidden" name="cantidad" value="0" />
+                                    <button class="btn btn-outline-danger btn-sm" type="submit">Eliminar</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="7" class="text-center text-muted">No hay artículos en el detalle.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ====== TOTALES ====== -->
+<div class="card mb-3">
+    <div class="card-header">Totales</div>
+    <div class="card-body row g-3">
+        <div class="col-md-4">
+            <label class="form-label fw-bold">Subtotal:</label>
+            <input class="form-control text-end" id="subtotal" value="₡@Model.Subtotal.ToString("N2")" readonly />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label fw-bold">IVA (13%):</label>
+            <input class="form-control text-end" id="iva" value="₡@Model.IVA.ToString("N2")" readonly />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label fw-bold">Total:</label>
+            <input class="form-control text-end" id="total" value="₡@Model.Total.ToString("N2")" readonly />
+        </div>
+    </div>
+</div>
+
+<!-- ====== PAGO ====== -->
+<div class="card mb-4">
+    <div class="card-header">Pago</div>
+    <div class="card-body">
+        <form id="frmConfirmar" method="post" asp-action="Confirmar">
+            @Html.AntiForgeryToken()
+
+
+            <input type="hidden" name="IdUsuario" id="hidUsuario" value="@Model.IdUsuario" />
+            <input type="hidden" name="DireccionEnvio" id="hidDir" value="@Model.DireccionEnvio" />
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Método:</label>
+                            <select name="MetodoPago" id="metodo" class="form-select" onchange="togglePago()">
+                                <option value="Tarjeta" selected="@((Model.MetodoPago == "Tarjeta").ToString().ToLower())">Tarjeta</option>
+                                <option value="Debito" selected="@((Model.MetodoPago == "Debito").ToString().ToLower())">Débito</option>
+                                <option value="Efectivo" selected="@((Model.MetodoPago == "Efectivo").ToString().ToLower())">Efectivo</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjeta/Débito -->
+            <div id="pagoTarjeta" class="row g-3 mt-1">
+                <div class="col-md-4">
+                    <label class="form-label">Número de tarjeta (16 dígitos):</label>
+                    <input class="form-control" name="NumeroTarjeta" id="num" maxlength="19" placeholder="#### #### #### ####" value="@Model.NumeroTarjeta" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Expiración (MM/AA):</label>
+                    <input class="form-control" name="ExpiracionMMYY" id="exp" maxlength="5" placeholder="MM/AA" value="@Model.ExpiracionMMYY" />
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">CVV:</label>
+                    <input class="form-control" name="CVV" id="cvv" maxlength="4" value="@Model.CVV" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Titular:</label>
+                    <input class="form-control" name="Titular" id="titular" value="@Model.Titular" />
+                </div>
+            </div>
+
+            <!-- Efectivo -->
+            <div id="pagoEfectivo" class="row g-3 mt-1 d-none">
+                <div class="col-md-4">
+                    <label class="form-label">Monto recibido:</label>
+                    <input class="form-control" name="MontoEfectivo" id="montoEf" value="@(Model.MontoEfectivo?.ToString("0.##") ?? "")" oninput="calcVuelto()" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Vuelto:</label>
+                    <input class="form-control" id="vuelto" readonly />
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="mt-4 d-flex gap-2">
+                <a class="btn btn-outline-secondary text-decoration-none fw-semibold"
+                   style="color: #190B80; border-color: #190B80;"
+                   asp-controller="Carrito" asp-action="Index">
+                    Volver al carrito
+                </a>
+
+                <button type="submit"
+                        class="btn fw-semibold"
+                        style="background-color: #190B80; color: white;"
+                        onclick="return validarPago();">
+                    Confirmar compra
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const TASA = 0.13;
+
+        document.getElementById('ddlUsuario').addEventListener('change', async (e) => {
+            const id = e.target.value;
+            document.getElementById('hidUsuario').value = id;
+            const box = document.getElementById('userDetail');
+            box.innerHTML = 'Cargando…';
+            try {
+                const res = await fetch(`/Checkout/UsuarioDetalle?idUsuario=${id}`);
+                const data = await res.json();
+                box.innerHTML = data.ok ? `${data.nombre} — ${data.email}` : (data.msg || 'No se pudo cargar.');
+            } catch {
+                box.innerHTML = 'Error de conexión.';
+            }
+        });
+
+        // Sincroniza dirección al hidden
+        document.getElementById('txtDireccion')?.addEventListener('input', (e) => {
+            document.getElementById('hidDir').value = e.target.value;
+        });
+
+        function togglePago() {
+            const m = document.getElementById('metodo').value;
+            const isEf = (m === 'Efectivo');
+            document.getElementById('pagoTarjeta').classList.toggle('d-none', isEf);
+            document.getElementById('pagoEfectivo').classList.toggle('d-none', !isEf);
+            if (isEf) { calcVuelto(); }
+        }
+        togglePago();
+
+        function parseMoney(s) {
+            if (!s) return 0;
+            return Number(s.replace('₡', '').replaceAll(',', ''));
+        }
+
+        function calcVuelto() {
+            const tot = parseMoney(document.getElementById('total').value);
+            const m = Number(document.getElementById('montoEf').value);
+            const v = (isNaN(m) ? 0 : m) - tot;
+            document.getElementById('vuelto').value = v >= 0 ? `₡${v.toFixed(2)}` : '—';
+        }
+
+        // Validaciones de pago (cliente)
+        function validarPago() {
+            const m = document.getElementById('metodo').value;
+            if (m === 'Efectivo') {
+                const tot = parseMoney(document.getElementById('total').value);
+                const mEf = Number(document.getElementById('montoEf').value);
+                if (isNaN(mEf) || mEf <= 0) { alert('Monto en efectivo inválido.'); return false; }
+                if (mEf < tot) { alert('El monto en efectivo debe ser mayor o igual al total.'); return false; }
+                return true;
+            }
+            const num = (document.getElementById('num').value || '').replaceAll(' ', '');
+            const exp = (document.getElementById('exp').value || '');
+            const cvv = (document.getElementById('cvv').value || '');
+            const tit = (document.getElementById('titular').value || '');
+
+            if (!/^\d{16}$/.test(num)) { alert('Número de tarjeta debe tener 16 dígitos.'); return false; }
+            if (!luhn(num)) { alert('Número de tarjeta inválido (Luhn).'); return false; }
+            if (!/^\d{2}\/\d{2}$/.test(exp)) { alert('Expiración debe ser MM/AA.'); return false; }
+            if (!expValida(exp)) { alert('Fecha de expiración inválida o vencida.'); return false; }
+            if (!/^\d{3,4}$/.test(cvv)) { alert('CVV inválido (3 o 4 dígitos).'); return false; }
+            if (!tit.trim()) { alert('Nombre del titular es obligatorio.'); return false; }
+            return true;
+        }
+
+        function luhn(num) {
+            let sum = 0, alt = false;
+            for (let i = num.length - 1; i >= 0; i--) {
+                let n = +num[i];
+                if (alt) { n *= 2; if (n > 9) n -= 9; }
+                sum += n; alt = !alt;
+            }
+            return sum % 10 === 0;
+        }
+
+        function expValida(mmYY) {
+            const [mmS, yyS] = mmYY.split('/');
+            const mm = +mmS, yy = +yyS;
+            if (!mm || !yy || mm < 1 || mm > 12) return false;
+            const year = 2000 + yy;
+            const lastDay = new Date(year, mm, 0);
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            return lastDay >= today;
+        }
+
+        // === Actualizar cantidad automáticamente ===
+        document.addEventListener("DOMContentLoaded", function () {
+            const inputs = document.querySelectorAll(".cantidad-input");
+
+            inputs.forEach(input => {
+                input.addEventListener("change", function () {
+                    const lineId = this.dataset.lineid;
+                    const cantidad = this.value;
+                    // const esPersonalizado = this.dataset.esPersonalizado === "true";
+                    const esPersonalizado = this.dataset.espersonalizado === "true";
+
+                    if (cantidad < 0) return;
+
+                    fetch("/Checkout/UpdateCantidad", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded",
+                            "RequestVerificationToken": document.querySelector('input[name="__RequestVerificationToken"]').value
+                        },
+                        body: new URLSearchParams({
+                            lineId: lineId,
+                            cantidad: cantidad,
+                            esPersonalizado: esPersonalizado
+                        })
+                    })
+                        .then(res => {
+                            if (res.ok) {
+                                location.reload();
+                            } else {
+                                alert("Hubo un error al actualizar la cantidad.");
+                            }
+                        });
+                });
+            });
+        });
+    </script>
+}

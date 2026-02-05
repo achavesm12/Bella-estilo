@@ -1,0 +1,111 @@
+﻿@using BelaEstilo.Application.DTOs
+@model ResenaRegistroDTO
+
+@{
+    ViewData["Title"] = "Registrar Reseña";
+    var fechaActual = DateTime.Now.ToString("dd/MM/yyyy");
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="p-4 rounded-4 shadow bg-white">
+
+                <h2 class="text-center mb-4 text-danger">Registrar Reseña</h2>
+
+                @if (User.Identity.IsAuthenticated && User.IsInRole("Cliente"))
+                {
+                    <form asp-controller="Resena" asp-action="Create" method="post">
+                        <input type="hidden" asp-for="IdProducto" />
+
+                        <div class="mb-3">
+                            <label class="form-label">Usuario</label>
+                            <input type="text" class="form-control" value="@User.Identity.Name" readonly />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Fecha</label>
+                            <input type="text" class="form-control" value="@fechaActual" readonly />
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Comentario" class="form-label">Comentario</label>
+                            <textarea asp-for="Comentario" class="form-control" rows="4" placeholder="Escribe tu reseña aquí..."></textarea>
+                            <span asp-validation-for="Comentario" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label d-block">Valoración</label>
+                            <div class="star-rating d-flex justify-content-center">
+                                <input type="radio" id="star5" name="Valoracion" value="5" />
+                                <label for="star5" title="5 estrellas">&#9733;</label>
+
+                                <input type="radio" id="star4" name="Valoracion" value="4" />
+                                <label for="star4" title="4 estrellas">&#9733;</label>
+
+                                <input type="radio" id="star3" name="Valoracion" value="3" />
+                                <label for="star3" title="3 estrellas">&#9733;</label>
+
+                                <input type="radio" id="star2" name="Valoracion" value="2" />
+                                <label for="star2" title="2 estrellas">&#9733;</label>
+
+                                <input type="radio" id="star1" name="Valoracion" value="1" />
+                                <label for="star1" title="1 estrella">&#9733;</label>
+                            </div>
+                            <span asp-validation-for="Valoracion" class="text-danger d-block text-center mt-1"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between mt-4">
+                            <button type="submit" class="btn px-4" style="background-color: #c2185b; color: white;">
+                                Enviar Reseña
+                            </button>
+
+                            <a asp-controller="Producto" asp-action="Details" asp-route-id="@Model.IdProducto"
+                               class="btn btn-outline-secondary px-4">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                }
+                else
+                {
+                    <p class="text-center text-danger">Debe iniciar sesión como cliente para dejar una reseña.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .star-rating {
+            font-size: 2.5rem;
+            direction: rtl;
+            unicode-bidi: bidi-override;
+        }
+
+            .star-rating input[type="radio"] {
+                display: none;
+            }
+
+            .star-rating label {
+                color: #ddd;
+                cursor: pointer;
+                padding: 0 8px;
+                transition: color 0.2s;
+            }
+
+                .star-rating label:hover,
+                .star-rating label:hover ~ label {
+                    color: #f5b301;
+                }
+
+            .star-rating input[type="radio"]:checked ~ label {
+                color: #f5b301;
+            }
+    </style>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,103 @@
+﻿@model List<BelaEstilo.Application.DTOs.Dashboard.VentasPorDiaDTO>
+@{
+    ViewData["Title"] = "Dashboard de Ventas";
+
+    var labels = string.Join(",", Model.Select(m => $"\"{m.Fecha}\""));
+    var data = string.Join(",", Model.Select(m => m.Total.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture)));
+    var total = Model.Sum(x => x.Total).ToString("N2", new System.Globalization.CultureInfo("es-CR"));
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-white text-center border-0">
+                    <h3 class="fw-bold text-danger mb-1">📊 Ventas por Día</h3>
+                    <p class="text-muted mb-0">Últimos 7 días</p>
+                </div>
+
+                <div class="card-body bg-light rounded-bottom">
+                    <canvas id="ventasChart" height="200"></canvas>
+
+                    <div class="mt-4 text-end">
+                        <span class="badge rounded-pill bg-danger fs-6">
+                            Total: ₡@total
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const ctx = document.getElementById('ventasChart').getContext('2d');
+    const ventasChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: [@Html.Raw(labels)],
+            datasets: [{
+                label: '₡ Ventas',
+                data: [@Html.Raw(data)],
+                backgroundColor: 'rgba(194, 24, 91, 0.5)', // Rosa Bella Estilo
+                borderColor: 'rgba(194, 24, 91, 1)',
+                borderWidth: 2,
+                borderRadius: 10,
+                barPercentage: 0.6
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: {
+                        color: '#333',
+                        font: {
+                            weight: 'bold'
+                        }
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            let value = context.raw.toLocaleString('es-CR', {
+                                style: 'currency',
+                                currency: 'CRC'
+                            });
+                            return ` ${value}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function (value) {
+                            return '₡' + value.toLocaleString('es-CR');
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Monto en colones',
+                        color: '#666',
+                        font: { weight: 'bold' }
+                    }
+                },
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Fecha',
+                        color: '#666',
+                        font: { weight: 'bold' }
+                    }
+                }
+            }
+        }
+    });
+</script>

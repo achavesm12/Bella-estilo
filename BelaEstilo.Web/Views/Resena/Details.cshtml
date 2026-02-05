@@ -1,0 +1,43 @@
+﻿@model BelaEstilo.Application.DTOs.ResenaDTO
+
+@{
+    ViewData["Title"] = "Detalle de la Reseña";
+}
+
+<h1 class="text-center py-3" style="background-color: #f8d7da; color: #721c24;">Detalle de la Reseña</h1>
+
+<div class="container border p-4 shadow-lg">
+    <div class="row">
+        <div class="col-md-12">
+            <h3>Reseña de: <strong>@Model.IdUsuarioNavigation.Nombre</strong></h3>
+            <p><strong>Producto:</strong> @Model.IdProductoNavigation.Nombre</p>
+            <p><strong>Fecha:</strong> @Model.Fecha?.ToString("dd/MM/yyyy")</p>
+
+            <p>
+                <strong>Valoración:</strong>
+                @{
+                    int valoracion = Model.Valoracion ?? 0;
+                    for (int i = 1; i <= 5; i++)
+                    {
+                        if (i <= valoracion)
+                        {
+                            <span class="text-warning">&#9733;</span>
+                        }
+                        else
+                        {
+                            <span class="text-secondary">&#9734;</span>
+                        }
+                    }
+                }
+                (@valoracion)
+            </p>
+
+            <p><strong>Comentario:</strong></p>
+            <p>@Model.Comentario</p>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a class="btn btn-info" style="background-color: #c2185b; color: white;" asp-action="Index">Regresar al listado</a>
+    </div>
+</div>

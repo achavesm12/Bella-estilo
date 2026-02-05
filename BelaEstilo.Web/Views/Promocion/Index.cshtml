@@ -1,0 +1,85 @@
+﻿@model IEnumerable<BelaEstilo.Application.DTOs.PromocionDTO>
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Lista de Promociones";
+}
+
+<h1 class="text-center py-3" style="background-color: #f8d7da; color: #721c24;">Lista de Promociones</h1>
+
+<!-- Mostrar mensaje de éxito después de la redirección -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col text-left mb-3">
+            <a asp-action="Create" class="btn" style="background-color: #c2185b; color: white;">Agregar nuevo producto</a>
+
+        </div>
+    </div>
+
+    <table class="table table-bordered table-striped shadow">
+        <thead class="table-dark text-center">
+            <tr>
+                <th>ID</th>
+                <th>Descuento (%)</th>
+                <th>Fecha Inicio</th>
+                <th>Fecha Fin</th>
+                <th>Estado</th>
+                <th>Acciones</th>  <!-- Nueva columna para botones -->
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                var estado = "";
+                var colorClase = "";
+                var hoy = DateTime.Today;
+
+                if (item.FechaInicio.HasValue && item.FechaFin.HasValue)
+                {
+                    if (hoy < item.FechaInicio.Value.ToDateTime(TimeOnly.MinValue))
+                    {
+                        estado = "Pendiente";
+                        colorClase = "bg-info text-white"; // azul claro
+                    }
+                    else if (hoy > item.FechaFin.Value.ToDateTime(TimeOnly.MinValue))
+                    {
+                        estado = "Aplicado";
+                        colorClase = "bg-light text-dark"; // gris suave
+                    }
+                    else
+                    {
+                        estado = "Vigente";
+                        colorClase = "bg-danger text-white"; // rojo vibrante
+                    }
+                }
+                else
+                {
+                    estado = "Sin fechas";
+                    colorClase = "bg-secondary text-white";
+                }
+
+                <tr class="text-center">
+                    <td>@item.IdPromocion</td>
+                    <td>@(item.Descuento?.ToString("P0"))</td>
+                    <td>@(item.FechaInicio?.ToDateTime(TimeOnly.MinValue).ToString("dd/MM/yyyy") ?? "-")</td>
+                    <td>@(item.FechaFin?.ToDateTime(TimeOnly.MinValue).ToString("dd/MM/yyyy") ?? "-")</td>
+                    <td class="@colorClase fw-bold">@estado</td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.IdPromocion" class="btn btn-sm me-1" style="background-color: #ad1457; color: white;">Detalle</a>
+                        <a asp-action="Edit" asp-route-id="@item.IdPromocion" class="btn btn-secondary btn-sm">Editar</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@await Html.PartialAsync("_Notificaciones")

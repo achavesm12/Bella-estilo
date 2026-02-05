@@ -1,0 +1,119 @@
+﻿@using BelaEstilo.Application.DTOs
+@model ProductoRegistroDTO
+
+@{
+    ViewData["Title"] = "Editar Producto";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="p-4 rounded-4 shadow" style="background-color: #ffffff;">
+                <h2 class="text-center mb-4" style="color: #c2185b;">Editar Producto</h2>
+
+                <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                    <input type="hidden" asp-for="IdProducto" />
+
+                    <!-- Resto de campos del producto -->
+                    <div class="mb-3">
+                        <label asp-for="Nombre" class="form-label"></label>
+                        <input asp-for="Nombre" class="form-control" />
+                        <span asp-validation-for="Nombre" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Descripcion" class="form-label"></label>
+                        <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Descripcion" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Precio" class="form-label"></label>
+                        <input asp-for="Precio" type="number" step="0.01" class="form-control" />
+                        <span asp-validation-for="Precio" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Stock" class="form-label"></label>
+                        <input asp-for="Stock" type="number" class="form-control" />
+                        <span asp-validation-for="Stock" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TipoTela" class="form-label"></label>
+                        <input asp-for="TipoTela" class="form-control" />
+                        <span asp-validation-for="TipoTela" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TallaDisponible" class="form-label"></label>
+                        <input asp-for="TallaDisponible" class="form-control" />
+                        <span asp-validation-for="TallaDisponible" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input asp-for="EstaActivo" class="form-check-input" type="checkbox" />
+                        <label asp-for="EstaActivo" class="form-check-label"></label>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="IdCategoria" class="form-label"></label>
+                        <select asp-for="IdCategoria" class="form-select" asp-items="ViewBag.Categorias">
+                            <option value="">-- Seleccione una categoría --</option>
+                        </select>
+                        <span asp-validation-for="IdCategoria" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="IdsEtiquetas" class="form-label">Etiquetas</label>
+                        <select asp-for="IdsEtiquetas" class="form-select" asp-items="ViewBag.Etiquetas" multiple></select>
+                        <span asp-validation-for="IdsEtiquetas" class="text-danger"></span>
+                    </div>
+
+                    <!-- Imágenes actuales con opción de eliminar -->
+                    <div class="mb-3">
+                        <label class="form-label">Imágenes actuales</label>
+                        <div class="d-flex flex-wrap gap-3">
+                            @if (Model.ImagenesActuales != null && Model.ImagenesActuales.Any())
+                            {
+                                foreach (var img in Model.ImagenesActuales)
+                                {
+                                    <div class="text-center">
+                                        <img src="data:image/jpeg;base64,@Convert.ToBase64String(img.Imagen)" width="100" class="img-thumbnail mb-2" />
+                                        <div class="form-check">
+                                            <input type="checkbox" name="ImagenesAEliminar" value="@img.IdImagen" class="form-check-input" id="deleteImg_@img.IdImagen" />
+                                            <label class="form-check-label" for="deleteImg_@img.IdImagen">Eliminar</label>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <span>No hay imágenes disponibles.</span>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Nuevas imágenes -->
+                    <div class="mb-3">
+                        <label asp-for="Imagenes" class="form-label">Agregar nuevas imágenes</label>
+                        <input asp-for="Imagenes" type="file" multiple class="form-control" />
+                        <span asp-validation-for="Imagenes" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn" style="background-color: #c2185b; color: white;">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a class="btn btn-secondary" asp-action="Index">Regresar al listado</a>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

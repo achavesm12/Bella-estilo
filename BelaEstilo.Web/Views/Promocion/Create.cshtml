@@ -1,0 +1,104 @@
+﻿@using BelaEstilo.Application.DTOs
+@model PromocionRegistroDTO
+
+@{
+    ViewData["Title"] = "Crear Promoción";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="p-4 rounded-4 shadow" style="background-color: #ffffff;">
+                <h2 class="text-center mb-4" style="color: #c2185b;">Registro de Promoción</h2>
+
+                <!-- Notificaciones -->
+                <partial name="_Notificaciones" />
+
+                <form asp-action="Create" method="post" novalidate>
+                    <div class="mb-3">
+                        <label asp-for="Nombre" class="form-label">Nombre</label>
+                        <input asp-for="Nombre" class="form-control" />
+                        <span asp-validation-for="Nombre" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TipoPromocion" class="form-label">Tipo de Promoción</label>
+                        <select asp-for="TipoPromocion" id="tipoPromocion" class="form-select" asp-items="ViewBag.TiposPromocion" required></select>
+                        <span asp-validation-for="TipoPromocion" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3" id="categoriaDiv" style="display:none;">
+                        <label asp-for="IdCategoria" class="form-label">Seleccione la Categoría</label>
+                        <select asp-for="IdCategoria" asp-items="ViewBag.Categorias" class="form-select" multiple size="5"></select>
+                        <span asp-validation-for="IdCategoria" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3" id="productoDiv" style="display:none;">
+                        <label class="form-label">Seleccione el Producto</label>
+                        <select asp-for="IdProducto" asp-items="ViewBag.Productos" class="form-select" multiple size="5"></select>
+                        <span asp-validation-for="IdProducto" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Descuento" class="form-label">Porcentaje o cantidad de descuento</label>
+                        <input asp-for="Descuento" type="number" min="0" max="100" step="0.01" class="form-control" />
+                        <span asp-validation-for="Descuento" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="FechaInicio" class="form-label">Fecha de Inicio</label>
+                        <input asp-for="FechaInicio" type="date" id="FechaInicio" class="form-control" />
+                        <span asp-validation-for="FechaInicio" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="FechaFin" class="form-label">Fecha de Fin</label>
+                        <input asp-for="FechaFin" type="date" id="FechaFin" class="form-control" />
+                        <span asp-validation-for="FechaFin" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn" style="background-color: #c2185b; color: white;">Crear Promoción</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a class="btn btn-info" style="background-color: #6c757d; color: white;" asp-action="Index">Regresar al listado</a>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        function toggleSelects() {
+            var tipo = document.getElementById("tipoPromocion").value;
+            document.getElementById("categoriaDiv").style.display = (tipo === "Categoria") ? "block" : "none";
+            document.getElementById("productoDiv").style.display = (tipo === "Producto") ? "block" : "none";
+        }
+
+        document.getElementById("tipoPromocion").addEventListener("change", toggleSelects);
+        window.onload = toggleSelects;
+
+        document.querySelector("form").addEventListener("submit", function (e) {
+            var inicio = document.getElementById("FechaInicio").value;
+            var fin = document.getElementById("FechaFin").value;
+            var hoy = new Date().toISOString().split("T")[0];
+
+            if (inicio && fin && inicio > fin) {
+                alert("La fecha de fin no puede ser anterior a la fecha de inicio.");
+                e.preventDefault();
+                return false;
+            }
+
+            if (inicio && inicio < hoy) {
+                alert("La fecha de inicio no puede ser anterior a la fecha actual.");
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+}

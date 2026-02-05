@@ -1,0 +1,94 @@
+﻿@using BelaEstilo.Application.DTOs
+@model ProductoRegistroDTO
+
+@{
+    ViewData["Title"] = "Crear Producto";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="p-4 rounded-4 shadow" style="background-color: #ffffff;">
+                <h2 class="text-center mb-4" style="color: #c2185b;">Registro de Producto</h2>
+
+
+
+                <form asp-action="Create" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label asp-for="Nombre" class="form-label">Nombre</label>
+                        <input asp-for="Nombre" class="form-control" />
+                        <span asp-validation-for="Nombre" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Descripcion" class="form-label">Descripción</label>
+                        <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Descripcion" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Precio" class="form-label">Precio</label>
+                        <input asp-for="Precio" type="number" step="0.01" class="form-control" />
+                        <span asp-validation-for="Precio" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Stock" class="form-label">Stock</label>
+                        <input asp-for="Stock" type="number" class="form-control" />
+                        <span asp-validation-for="Stock" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TipoTela" class="form-label">Tipo de Tela</label>
+                        <input asp-for="TipoTela" class="form-control" />
+                        <span asp-validation-for="TipoTela" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TallaDisponible" class="form-label">Talla Disponible</label>
+                        <input asp-for="TallaDisponible" class="form-control" />
+                        <span asp-validation-for="TallaDisponible" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input asp-for="EstaActivo" class="form-check-input" type="checkbox" />
+                        <label asp-for="EstaActivo" class="form-check-label">Producto Activo</label>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="IdCategoria" class="form-label">Categoría</label>
+                        <select asp-for="IdCategoria" class="form-select" asp-items="ViewBag.Categorias">
+                            <option value="">-- Seleccione una categoría --</option>
+                        </select>
+                        <span asp-validation-for="IdCategoria" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="IdsEtiquetas" class="form-label">Etiquetas</label>
+                        <select asp-for="IdsEtiquetas" class="form-select" asp-items="ViewBag.Etiquetas" multiple>
+                        </select>
+                        <span asp-validation-for="IdsEtiquetas" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Imagenes" class="form-label">Imágenes (puede seleccionar varias)</label>
+                        <input name="Imagenes" type="file" multiple class="form-control" />
+                        <span asp-validation-for="Imagenes" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn" style="background-color: #c2185b; color: white;">Crear Producto</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a class="btn btn-info" style="background-color: #6c757d; color: white;" asp-action="Index">Regresar al listado</a>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,37 @@
+﻿@model IEnumerable<BelaEstilo.Application.DTOs.PedidoDTO>
+
+@{
+    ViewData["Title"] = "Lista de Pedidos";
+}
+
+<h1 class="text-center py-3" style="background-color: #f8d7da; color: #721c24;">Pedidos Registrados</h1>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<section>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 mt-4">
+        @foreach (var item in Model)
+        {
+            <div class="col">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Pedido #@item.IdPedido</h5>
+                        <p class="card-text"><strong>Fecha: </strong> @item.FechaPedido.ToString("dd/MM/yyyy")</p>
+                        <p class="card-text"><strong>Usuario: </strong> @(item.IdUsuarioNavigation?.Nombre ?? "N/A")</p>
+                        <p class="card-text"><strong>Estado: </strong> @item.Estado</p>
+                    </div>
+                    <div class="card-body">
+
+                        <a class="btn" asp-action="Details" asp-route-id="@item.IdPedido" style="background-color: #ad1457; color: white;">Detalle</a>
+                        <a class="btn btn-secondary" asp-action="Edit" asp-route-id="@item.IdPedido">Editar</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>

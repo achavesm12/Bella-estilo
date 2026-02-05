@@ -1,0 +1,44 @@
+﻿@model List<BelaEstilo.Application.DTOs.CategoriaDTO>
+
+@{
+    ViewData["Title"] = "Inicio";
+
+    Dictionary<string, string> imagenes = new()
+    {
+        { "Accesorios", "accesorios.jpg" },
+        { "Blusas", "blusas.jpg" },
+        { "Ropa Deportiva", "deportivas.jpg" },
+        { "Faldas", "faldas.jpg" },
+        { "Pantalones", "pantalones.jpg" },
+        { "Vestidos", "vestidos.jpg" }
+    };
+}
+
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 style="color: #000000; font-weight: bold;">Bienvenida a Bella Estilo</h1>
+        <p class="lead text-muted">
+            Explora nuestras categorías y encontrá el outfit ideal para vos. 🌸
+        </p>
+    </div>
+
+@*     <h2 class="text-center mb-4" style="color: #c2185b;">Categorías</h2> *@
+
+    <div class="row justify-content-center">
+        @foreach (var cat in Model)
+        {
+            var imagen = imagenes.ContainsKey(cat.Nombre) ? imagenes[cat.Nombre] : "default.jpg";
+
+            <div class="col-md-4 col-lg-3 mb-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <img src="~/images/categorias/@imagen"
+                         class="card-img-top" alt="@cat.Nombre" style="height: 200px; object-fit: cover;" />
+
+                    <div class="card-body text-center">
+                        <h5 class="card-title" style="color: #880e4f;">@cat.Nombre</h5>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

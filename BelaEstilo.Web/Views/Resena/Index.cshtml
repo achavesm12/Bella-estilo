@@ -1,0 +1,61 @@
+﻿@model IEnumerable<BelaEstilo.Application.DTOs.ResenaDTO>
+
+@{
+    ViewData["Title"] = "Lista de Reseñas";
+}
+
+@* <h1 class="text-center bg-primary text-white py-3">Lista de Reseñas</h1> *@
+<h1 class="text-center py-3" style="background-color: #f8d7da; color: #721c24;">Lista de Reseñas</h1>
+
+
+<section>
+    <div class="row mt-4">
+        <div class="col text-left">
+            <a asp-action="Create" class="btn" style="background-color: #c2185b; color: white;">Agregar nueva reseña</a>
+
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 mt-3">
+        @foreach (var item in Model.OrderByDescending(r => r.Fecha))
+        {
+            <div class="col">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">@item.IdUsuarioNavigation.Nombre</h5>
+                        <p class="card-text mb-1"><strong>Producto:</strong> @item.IdProductoNavigation.Nombre</p>
+                        <p class="card-text mb-1"><strong>Fecha:</strong> @item.Fecha?.ToString("dd/MM/yyyy")</p>
+
+                        <p class="mb-2">
+                            <strong>Valoración:</strong>
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                if (i <= item.Valoracion)
+                                {
+                                    <span class="text-warning">&#9733;</span>
+                                }
+                                else
+                                {
+                                    <span class="text-secondary">&#9734;</span>
+                                }
+                            }
+                        </p>
+
+                        <div class="border rounded p-2 bg-light">
+                            <p class="mb-0"><strong>Comentario:</strong></p>
+                            <p class="mb-0 text-muted">@item.Comentario</p>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <a class="btn" asp-action="Details" asp-route-id="@item.IdResena" style="background-color: #ad1457; color: white;">Detalle</a>
+                        @* <a class="btn" asp-action="Edit" asp-route-id="@item.IdResena" style="background-color: #6a1b9a; color: white;">Editar</a> *@
+                        <a class="btn btn-secondary" asp-action="Edit" asp-route-id="@item.IdResena">Editar</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</section>
+
+@await Html.PartialAsync("_Notificaciones")

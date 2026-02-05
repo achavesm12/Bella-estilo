@@ -1,0 +1,340 @@
+﻿@model BelaEstilo.Application.DTOs.PedidoSessionDTO
+@{
+    ViewData["Title"] = "Carrito";
+}
+
+<h2>Carrito</h2>
+
+@await Html.PartialAsync("_Notificaciones")
+
+<!-- Productos normales -->
+@if (Model.Items.Any())
+{
+    <h4>Productos normales</h4>
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th style="width:140px;">Cantidad</th>
+                <th style="width:160px;">Total línea</th>
+                <th style="width:140px;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>
+                        <div class="fw-semibold">@item.NombreProducto</div>
+                        <div class="text-muted small">₡@item.PrecioUnitario.ToString("N2")</div>
+                    </td>
+                    <td>
+                        <form asp-action="UpdateCantidad" method="post" class="d-flex gap-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="idProducto" value="@item.IdProducto" />
+                            <input type="number" class="form-control form-control-sm cantidad-spinner" name="cantidad" value="@item.Cantidad" min="1" />
+                        </form>
+                    </td>
+                    <td class="fw-semibold">₡@item.TotalLinea.ToString("N2")</td>
+                    <td class="text-end">
+                        <form asp-action="Remove" method="post" onsubmit="return confirm('¿Eliminar este producto?');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="idProducto" value="@item.IdProducto" />
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<!-- Productos personalizados -->
+@if (Model.ItemsPersonalizados.Any())
+{
+    <h4>Productos personalizados</h4>
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Criterios</th>
+                <th style="width:140px;">Cantidad</th>
+                <th style="width:160px;">Total línea</th>
+                <th style="width:140px;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.ItemsPersonalizados)
+            {
+                <tr>
+                    <td>
+                        <div class="fw-semibold">@item.NombreProducto</div>
+                        <div class="text-muted small">₡@item.CostoBase.ToString("N2") base</div>
+                    </td>
+                    <td>
+                        @if (item.Criterios.Any())
+                        {
+                            foreach (var c in item.Criterios)
+                            {
+                                <div>
+                                    @c.NombreCriterio: @c.OpcionSeleccionada
+                                    <span class="text-muted small">(+₡@c.CostoExtra.ToString("N2"))</span>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <span class="text-muted">Sin extras</span>
+                        }
+                    </td>
+                    <td>
+                        <form asp-action="UpdateCantidadPersonalizado" method="post" class="d-flex gap-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="lineId" value="@item.LineId" />
+                            <input type="number" class="form-control form-control-sm cantidad-spinner" name="cantidad" value="@item.Cantidad" min="1" />
+                        </form>
+                    </td>
+                    <td class="fw-semibold">₡@item.TotalLinea.ToString("N2")</td>
+                    <td class="text-end">
+                        <form asp-action="RemovePersonalizado" method="post" onsubmit="return confirm('¿Eliminar este producto?');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="lineId" value="@item.LineId" />
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<!-- Totales y navegación -->
+@if (Model.Items.Any() || Model.ItemsPersonalizados.Any())
+{
+    <div class="mt-3">
+        <div>Subtotal: <strong>₡@Model.Subtotal.ToString("N2")</strong></div>
+        <div>IVA (13%): <strong>₡@Model.IVA.ToString("N2")</strong></div>
+        <div>Total: <strong>₡@Model.Total.ToString("N2")</strong></div>
+    </div>
+
+    <div class="mt-4 d-flex gap-2">
+        <a class="btn btn-outline-secondary text-decoration-none fw-semibold"
+           style="color: #190B80; border-color: #190B80;"
+           asp-controller="Producto" asp-action="Index">
+            Seguir comprando
+        </a>
+
+        <a class="btn fw-semibold"
+           style="background-color: #190B80; color: white;"
+           asp-controller="Checkout" asp-action="Index">
+            Continuar al pago
+        </a>
+    </div>
+
+}
+else
+{
+    <p>Tu carrito está vacío.</p>
+    <a class="btn btn-primary" asp-controller="Producto" asp-action="Index">Ir a productos</a>
+}
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.cantidad-spinner').forEach(input => {
+            // Impedir valores menores a 1
+            input.addEventListener('input', function () {
+                if (this.value < 1) {
+                    this.value = 1;
+                }
+            });
+
+            // Enviar el formulario automáticamente al cambiar la cantidad
+            input.addEventListener('change', function () {
+                const form = this.closest('form');
+                if (form) {
+                    form.submit();
+                }
+            });
+        });
+    </script>
+}
+
+@* @model BelaEstilo.Application.DTOs.PedidoSessionDTO
+@{
+    ViewData["Title"] = "Carrito";
+}
+
+<h2>Carrito</h2>
+
+@await Html.PartialAsync("_Notificaciones")
+
+@if (Model.ItemsPersonalizados.Any())
+{
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Criterios</th>
+                <th style="width:140px;">Cantidad</th>
+                <th style="width:160px;">Total línea</th>
+                <th style="width:140px;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.ItemsPersonalizados)
+            {
+                <tr>
+                    <td>
+                        <div class="fw-semibold">@item.NombreProducto</div>
+                        <div class="text-muted small">₡@item.CostoBase.ToString("N2") base</div>
+                    </td>
+                    <td>
+                        @if (item.Criterios.Any())
+                        {
+                            foreach (var c in item.Criterios)
+                            {
+                                <div>
+                                    @c.NombreCriterio: @c.OpcionSeleccionada
+                                    <span class="text-muted small">(+₡@c.CostoExtra.ToString("N2"))</span>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <span class="text-muted">Sin extras</span>
+                        }
+                    </td>
+
+                    <td>
+                        <form asp-action="UpdateCantidadPersonalizado" method="post" class="d-flex gap-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="lineId" value="@item.LineId" />
+                            <input type="number" class="form-control" name="cantidad" value="@item.Cantidad" min="1" />
+                            <button type="submit" class="btn btn-outline-primary btn-sm">Actualizar</button>
+                        </form>
+                    </td>
+
+                    <td class="fw-semibold">₡@item.TotalLinea.ToString("N2")</td>
+
+                    <td class="text-end">
+                        <form asp-action="RemovePersonalizado" method="post" onsubmit="return confirm('¿Eliminar este producto?');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="lineId" value="@item.LineId" />
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="mt-3">
+        <div>Subtotal: <strong>₡@Model.Subtotal.ToString("N2")</strong></div>
+        <div>IVA (13%): <strong>₡@Model.IVA.ToString("N2")</strong></div>
+        <div>Total: <strong>₡@Model.Total.ToString("N2")</strong></div>
+    </div>
+
+    <div class="mt-4 d-flex gap-2">
+        <a class="btn btn-outline-secondary" asp-controller="Producto" asp-action="Index">Seguir comprando</a>
+        <a class="btn btn-success" asp-controller="Checkout" asp-action="Index">Continuar al pago</a>
+    </div>
+}
+else
+{
+    <p>Tu carrito está vacío.</p>
+    <a class="btn btn-primary" asp-controller="Producto" asp-action="Index">Ir a productos</a>
+}
+ *@
+
+@* @model BelaEstilo.Application.DTOs.PedidoSessionDTO
+@{
+    ViewData["Title"] = "Carrito";
+}
+
+<h2>Carrito</h2>
+
+@await Html.PartialAsync("_Notificaciones")
+
+@if (TempData["Debug"] != null)
+{
+    <div class="alert alert-info">@TempData["Debug"]</div>
+}
+
+
+@if (Model.ItemsPersonalizados.Any())
+{
+    <table class="table align-middle">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Criterios</th>
+                <th style="width:140px;">Cantidad</th>
+                <th style="width:160px;">Total línea</th>
+                <th style="width:140px;"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.ItemsPersonalizados)
+            {
+                <tr>
+                    <td>
+                        <div class="fw-semibold">@item.NombreProducto</div>
+                        <div class="text-muted small">₡@item.CostoBase.ToString("N2") base</div>
+                    </td>
+                    <td>
+                        @if (item.Criterios.Any())
+                        {
+                            foreach (var c in item.Criterios)
+                            {
+                                <div>
+                                    @c.NombreCriterio: @c.OpcionSeleccionada
+                                    <span class="text-muted small">(+₡@c.CostoExtra.ToString("N2"))</span>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <span class="text-muted">Sin extras</span>
+                        }
+                    </td>
+
+                    <td>
+                        <form asp-action="UpdateCantidadPersonalizado" method="post" class="d-flex gap-2">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="lineId" value="@item.LineId" />
+                            <input type="number" class="form-control" name="cantidad" value="@item.Cantidad" min="1" />
+                            <button type="submit" class="btn btn-outline-primary btn-sm">Actualizar</button>
+                        </form>
+                    </td>
+
+                    <td class="fw-semibold">₡@item.TotalLinea.ToString("N2")</td>
+
+                    <td class="text-end">
+                        <form asp-action="RemovePersonalizado" method="post" onsubmit="return confirm('¿Eliminar este producto?');">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="lineId" value="@item.LineId" />
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="mt-3">
+        <div>Subtotal: <strong>₡@Model.Subtotal.ToString("N2")</strong></div>
+        <div>IVA (13%): <strong>₡@Model.IVA.ToString("N2")</strong></div>
+        <div>Total: <strong>₡@Model.Total.ToString("N2")</strong></div>
+    </div>
+
+    <div class="mt-4 d-flex gap-2">
+        <a class="btn btn-outline-secondary" asp-controller="Producto" asp-action="Index">Seguir comprando</a>
+        <a class="btn btn-success" asp-controller="Checkout" asp-action="Index">Continuar al pago</a>
+    </div>
+}
+else
+{
+    <p>Tu carrito está vacío.</p>
+    <a class="btn btn-primary" asp-controller="Producto" asp-action="Index">Ir a productos</a>
+}
+ *@

@@ -1,0 +1,50 @@
+﻿@{
+    ViewData["Title"] = "Gracias por tu compra";
+    var idPedido = ViewBag.IdPedido;
+}
+
+<div class="container mt-5">
+    <div class="text-center">
+        <h1 style="color: #190B80; font-weight: bold;">¡Gracias por tu compra!</h1>
+        <p class="lead" style="color: #4e4e4e;">Tu pedido ha sido registrado correctamente.</p>
+
+        <p style="color: #6d6d6d;">Número de pedido: #@idPedido</strong></p>
+
+        <p class="mt-3" style="color: #6d6d6d;">
+            Hemos enviado una copia de tu factura al correo electrónico proporcionado.
+        </p>
+
+        <a class="btn mt-3"
+           style="background-color: #f8bbd0; color: #880e4f; border: none;"
+           href="@Url.Action("DescargarFactura", "Checkout", new { idPedido = idPedido })"
+           target="_blank">
+            Descargar factura en PDF
+        </a>
+
+        <br />
+
+        <a class="btn mt-3"
+           style="background-color: #190B80; color: white;"
+           href="@Url.Action("Index", "Home")">
+            Volver al inicio
+        </a>
+    </div>
+</div>
+
+
+@* @{
+    ViewData["Title"] = "Gracias por tu compra";
+    var idPedido = ViewBag.IdPedido;
+}
+
+<div class="container mt-5">
+    <div class="text-center">
+        <h1 class="text-success">¡Gracias por tu compra!</h1>
+        <p class="lead">Tu pedido ha sido registrado correctamente.</p>
+
+        <p>Número de pedido: <strong>#@idPedido</strong></p>
+
+        <a class="btn btn-primary mt-3" href="@Url.Action("Index", "Home")">Volver al inicio</a>
+    </div>
+</div>
+ *@

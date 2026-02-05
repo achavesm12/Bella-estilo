@@ -1,0 +1,64 @@
+﻿@using BelaEstilo.Application.DTOs
+@model UsuarioRegistroDTO
+
+@{
+    ViewData["Title"] = "Crear Usuario";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="p-4 rounded-4 shadow" style="background-color: #ffffff;">
+                <h2 class="text-center mb-4" style="color: #c2185b;">Registro de Usuario</h2>
+
+                <form asp-action="Create" method="post">
+                    <div class="mb-3">
+                        <label asp-for="Nombre" class="form-label">Nombre</label>
+                        <input asp-for="Nombre" class="form-control" />
+                        <span asp-validation-for="Nombre" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Correo" class="form-label">Correo electrónico</label>
+                        <input asp-for="Correo" class="form-control" />
+                        <span asp-validation-for="Correo" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Contrasenna" class="form-label">Contraseña</label>
+                        <input asp-for="Contrasenna" type="password" class="form-control" />
+                        <span asp-validation-for="Contrasenna" class="text-danger"></span>
+                    </div>
+
+                    <!-- Nuevo campo para confirmar contraseña -->
+                    <div class="mb-3">
+                        <label asp-for="ConfirmarContrasenna" class="form-label">Confirmar contraseña</label>
+                        <input asp-for="ConfirmarContrasenna" type="password" class="form-control" />
+                        <span asp-validation-for="ConfirmarContrasenna" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Rol" class="form-label">Rol</label>
+                        <select asp-for="Rol" class="form-select">
+                            <option value="Cliente">Cliente</option>
+                            <option value="Admin">Admin</option>
+                        </select>
+                        <span asp-validation-for="Rol" class="text-danger"></span>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn" style="background-color: #c2185b; color: white;">Crear Usuario</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <a class="btn btn-info" style="background-color: #6c757d; color: white;" asp-action="Index">Regresar al listado</a>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

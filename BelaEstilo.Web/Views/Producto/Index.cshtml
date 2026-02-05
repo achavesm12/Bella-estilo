@@ -1,0 +1,56 @@
+﻿@model IEnumerable<BelaEstilo.Application.DTOs.ProductoDTO>
+
+@{
+    ViewData["Title"] = "Lista de productos";
+
+}
+
+<h1 class="text-center py-3" style="background-color: #f8d7da; color: #721c24;">Catálogo de Productos</h1>
+
+
+@* <!-- Mostrar mensaje de éxito después de la redirección -->
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+} *@
+
+<section>
+    <div class="row mt-4">
+        <div class="col text-left">
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-action="Create" class="btn" style="background-color: #c2185b; color: white;">Agregar nuevo producto</a>
+            }
+            
+        </div>
+    </div>
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">
+        @foreach (var item in Model)
+        {
+            <div class="col">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">@Html.DisplayFor(modelItem => item.Nombre)</h5>
+                        <p class="card-text"><strong>Descripción: </strong> @Html.DisplayFor(modelItem => item.Descripcion)</p>
+                        <p class="card-text"><strong>Precio: </strong> ¢@item.Precio?.ToString("F2")</p>
+                        <p class="card-text"><strong>Inventario: </strong> @item.Stock</p>
+                    </div>
+                    <div class="card-body">
+                        <a class="btn" asp-action="Details" asp-route-id="@item.IdProducto" style="background-color: #ad1457; color: white;">Detalle</a>
+                        
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <a class="btn btn-secondary" asp-action="Edit" asp-route-id="@item.IdProducto">Editar</a>
+
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+</section>
+
+@await Html.PartialAsync("_Notificaciones")

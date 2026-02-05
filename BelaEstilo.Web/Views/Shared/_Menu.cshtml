@@ -1,0 +1,88 @@
+﻿@using System.Globalization
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #f8f9fa;">
+    <div class="container-fluid">
+
+        <a class="navbar-brand" asp-controller="Home" asp-action="Index" style="color: #c2185b;">
+            <i class="bi bi-shop-window me-1"></i> Bella Estilo
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul class="navbar-nav ms-auto">
+
+                <!--Litados-->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                       aria-expanded="false" style="color: #c2185b;">
+                        <i class="bi bi-list"></i> Listados
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" asp-controller="Producto" asp-action="Index">Productos</a></li>
+                        <li><a class="dropdown-item" asp-controller="Resena" asp-action="Index">Reseñas</a></li>
+                        <li><a class="dropdown-item" asp-controller="Promocion" asp-action="Index">Promociones</a></li>
+                        <li><a class="dropdown-item" asp-controller="Promocion" asp-action="ProductosConPromocion">Promociones vigentes</a></li>
+                        <li><a class="dropdown-item" asp-controller="Pedido" asp-action="Index">Pedidos</a></li>
+                    </ul>
+                </li>
+
+                <!--Mantenimientos-->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                       aria-expanded="false" style="color: #c2185b;">
+                        <i class="bi bi-screwdriver"></i> Mantenimientos
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" asp-controller="Usuario" asp-action="Index">Usuarios</a></li>
+                        <li><a class="dropdown-item" asp-controller="Promocion" asp-action="Index">Etiquetas</a></li>
+                    </ul>
+                </li>
+
+                <!-- NUEVO: Enlace al Dashboard -->
+                <li class="nav-item">
+                    <a class="nav-link" asp-controller="Dashboard" asp-action="VentasPorDia" style="color: #c2185b;">
+                        <i class="bi bi-bar-chart-line"></i> Dashboard
+                    </a>
+                </li>
+
+                <!-- Catálogo -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/Producto" style="color: #c2185b;">
+                        <i class="bi bi-bag"></i> Catálogo
+                    </a>
+                </li>
+
+                <!-- Carrito -->
+                <li class="nav-item">
+                    <a class="nav-link" href="/Carrito" style="color: #c2185b;">
+                        <i class="bi bi-cart"></i> Carrito
+                    </a>
+                </li>
+
+                <!-- Cuenta -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown"
+                       role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                       style="color: #c2185b;">
+                        <i class="bi bi-person-circle"></i> Cuenta
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="/Pedido">Mis Pedidos</a></li>
+                        <li><a class="dropdown-item" asp-controller="Usuario" asp-action="Index">Usuarios</a></li>
+                        <li>
+                            <a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="Privacy">
+                                <i></i> Privacidad
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/Login/Logout">Cerrar Sesión</a></li>
+                    </ul>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+</nav>

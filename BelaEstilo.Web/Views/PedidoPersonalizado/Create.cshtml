@@ -1,0 +1,292 @@
+﻿@model BelaEstilo.Application.DTOs.PedidoPersonalizadoDTO
+
+@{
+    ViewData["Title"] = "Personalizar";
+    var culturaCR = new System.Globalization.CultureInfo("es-CR");
+}
+
+<h2 class="mb-4">Personalizar: @Model.NombreProductoPersonalizado</h2>
+
+@if (Model != null)
+{
+    <div class="alert alert-info fw-bold">
+        Precio base: ₡@Model.CostoBase.ToString("N2", culturaCR)
+    </div>
+
+    <form asp-action="AgregarAlCarrito" method="post" onsubmit="return validarCheckboxes();">
+        <input type="hidden" asp-for="IdProducto" />
+        <input type="hidden" asp-for="NombreProductoPersonalizado" />
+        <input type="hidden" asp-for="CostoBase" />
+
+        @if (Model.Criterios != null && Model.Criterios.Any())
+        {
+            <div class="card mb-4">
+                <div class="card-header bg-light">
+                    <strong>Opciones de personalización</strong>
+                </div>
+                <div class="card-body">
+
+                    @for (int i = 0; i < Model.Criterios.Count; i++)
+                    {
+                        var item = Model.Criterios[i];
+                        <div class="form-check d-flex align-items-center justify-content-between border rounded p-2 mb-2">
+                            <div>
+                                <input type="checkbox"
+                                       class="form-check-input criterio-check"
+                                       name="CriteriosSeleccionadosIds"
+                                       value="@item.Id"
+                                       id="criterio_@i"
+                                       onchange="recalcularTotales()" />
+
+                                <label class="form-check-label ms-2" for="criterio_@i">
+                                    @item.NombreCriterio
+                                    <small class="text-muted">(+₡@item.CostoExtra.ToString("N2"))</small>
+                                </label>
+                            </div>
+
+
+
+                            <!-- Hidden fields corregidos -->
+                            <input type="hidden" name="@string.Format("Criterios[{0}].Id", i)" value="@item.Id" />
+                            <input type="hidden" name="@string.Format("Criterios[{0}].NombreCriterio", i)" value="@item.NombreCriterio" />
+                            <input type="hidden" name="@string.Format("Criterios[{0}].CostoExtra", i)" value="@item.CostoExtra.ToString(System.Globalization.CultureInfo.InvariantCulture)" class="criterio-costo" />
+                            <input type="hidden" name="@string.Format("Criterios[{0}].OpcionSeleccionada", i)" value="Sí" />
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <p>No hay opciones de personalización disponibles.</p>
+        }
+
+        <!-- Totales -->
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <strong>Resumen</strong>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4">
+                        <label><strong>Subtotal:</strong></label>
+                        <input type="text" id="subtotal" class="form-control text-center" readonly value="₡@Model.CostoBase.ToString("N2", culturaCR)" />
+                    </div>
+                    <div class="col-md-4">
+                        <label><strong>IVA (13%):</strong></label>
+                        <input type="text" id="iva" class="form-control text-center" readonly value="₡0.00" />
+                    </div>
+                    <div class="col-md-4">
+                        <label><strong>Total:</strong></label>
+                        <input type="text" id="total" class="form-control text-center" readonly value="₡@Model.CostoBase.ToString("N2", culturaCR)" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="d-flex justify-content-between">
+            <a asp-controller="Producto" asp-action="Index" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">Agregar al carrito</button>
+        </div>
+    </form>
+}
+else
+{
+    <p>Producto no encontrado.</p>
+}
+
+@section Scripts {
+    <script>
+        function recalcularTotales() {
+            let checkboxes = document.querySelectorAll('.criterio-check');
+            let costos = document.querySelectorAll('.criterio-costo');
+            let base = parseFloat('@Model.CostoBase.ToString(System.Globalization.CultureInfo.InvariantCulture)');
+            let extras = 0;
+
+            checkboxes.forEach((cb, idx) => {
+                if (cb.checked) {
+                    let costo = parseFloat(costos[idx].value);
+                    extras += costo;
+                }
+            });
+
+            let subtotal = base + extras;
+            let iva = +(subtotal * 0.13).toFixed(2);
+            let total = +(subtotal + iva).toFixed(2);
+
+            document.getElementById("subtotal").value = "₡" + subtotal.toLocaleString('es-CR', { minimumFractionDigits: 2 });
+            document.getElementById("iva").value = "₡" + iva.toLocaleString('es-CR', { minimumFractionDigits: 2 });
+            document.getElementById("total").value = "₡" + total.toLocaleString('es-CR', { minimumFractionDigits: 2 });
+        }
+
+        function validarCheckboxes() {
+            const checkboxes = document.querySelectorAll('.criterio-check');
+            let alMenosUno = false;
+
+            checkboxes.forEach(cb => {
+                if (cb.checked) alMenosUno = true;
+            });
+
+            if (!alMenosUno) {
+                alert("Debes seleccionar al menos una opción de personalización.");
+                return false;
+            }
+
+            return true;
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            recalcularTotales();
+        });
+    </script>
+}
+
+@* 
+
+@model BelaEstilo.Application.DTOs.PedidoPersonalizadoDTO
+@using System.Linq
+
+@{
+    ViewData["Title"] = "Personalizar producto";
+}
+
+<h2 class="mb-3">Personalizar: @Model.NombreProductoPersonalizado</h2>
+
+<div class="alert alert-info">
+    <strong>Precio base:</strong>
+    <span id="precioBase" data-base="@Model.CostoBase">₡@Model.CostoBase.ToString("N2")</span>
+</div>
+
+<form asp-action="AgregarAlCarrito" method="post" onsubmit="return onSubmitPersonalizado();">
+    @Html.AntiForgeryToken()
+
+    <div id="alertSeleccion" class="alert alert-warning d-none" role="alert">
+        Debes seleccionar al menos una opción de personalización.
+    </div>
+
+    <!-- Campos ocultos -->
+    <input type="hidden" name="IdPedidoPersonalizado" value="@Model.IdPedidoPersonalizado" />
+    <input type="hidden" name="IdPedido" value="@Model.IdPedido" />
+    <input type="hidden" name="IdProducto" value="@Model.IdProducto" />
+    <input type="hidden" name="NombreProductoPersonalizado" value="@Model.NombreProductoPersonalizado" />
+    <input type="hidden" id="personalizado_Total" name="TotalProductoPersonalizado" value="@Model.TotalProductoPersonalizado" />
+
+    <!-- Criterios -->
+    <div class="card mb-3">
+        <div class="card-header">Opciones de personalización</div>
+        <div class="card-body">
+            @if (Model.Criterios != null && Model.Criterios.Any())
+            {
+                for (int i = 0; i < Model.Criterios.Count; i++)
+                {
+                   var c = Model.Criterios.ElementAt(i);
+
+                    <div class="form-check d-flex align-items-center justify-content-between border rounded p-2 mb-2">
+                        <div>
+                            <!-- checkbox + hidden para enviar siempre valor -->
+                            <input type="hidden" name="Criterios[@i].Seleccionado" value="false" />
+                            <input class="form-check-input criterio-check"
+                                   type="checkbox"
+                                   id="crit_@i"
+                                   name="Criterios[@i].Seleccionado"
+                                   value="true"
+                                   @(c.Seleccionado ? "checked" : "")
+                                   onchange="recalcularTotales()" />
+                            <label class="form-check-label" for="crit_@i">
+                                @c.NombreCriterio
+                                <small class="text-muted">(+₡@c.CostoExtra.ToString("N2"))</small>
+                            </label>
+                        </div>
+
+                        <!-- Datos del criterio -->
+                        <input type="hidden" name="Criterios[@i].Id" value="@c.Id" />
+                        <input type="hidden" name="Criterios[@i].IdPedidoPersonalizado" value="@Model.IdPedidoPersonalizado" />
+                        <input type="hidden" name="Criterios[@i].NombreCriterio" value="@c.NombreCriterio" />
+                        <input type="hidden" name="Criterios[@i].OpcionSeleccionada" value="Sí" />
+                        <input type="hidden" class="criterio-costo" name="Criterios[@i].CostoExtra" value="@c.CostoExtra" />
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-muted mb-0">No hay opciones de personalización disponibles.</p>
+            }
+        </div>
+    </div>
+
+    <!-- Resumen -->
+    <div class="card mb-3">
+        <div class="card-header">Resumen</div>
+        <div class="card-body row g-3">
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Subtotal:</label>
+                <input class="form-control text-end" id="subtotalInput" value="₡0.00" readonly />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-bold">IVA (13%):</label>
+                <input class="form-control text-end" id="ivaInput" value="₡0.00" readonly />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Total:</label>
+                <input class="form-control text-end" id="totalInput" value="₡0.00" readonly />
+            </div>
+        </div>
+    </div>
+
+    <!-- Botones -->
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-secondary" asp-controller="Producto" asp-action="Index">Cancelar</a>
+        <button type="submit" class="btn btn-primary" onclick="beforeSubmitSetTotals()">Agregar al carrito</button>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        const TASA_IVA = 0.13;
+
+        function parseDecimal(v) {
+            if (v === null || v === undefined) return 0;
+            const n = Number(v.toString().replace(',', '.'));
+            return isNaN(n) ? 0 : n;
+        }
+
+        function onSubmitPersonalizado() {
+            const seleccionados = document.querySelectorAll(".criterio-check:checked");
+            if (seleccionados.length === 0) {
+                const alerta = document.getElementById("alertSeleccion");
+                if (alerta) alerta.classList.remove("d-none");
+                return false;
+            }
+            return true;
+        }
+
+        function recalcularTotales() {
+            const base = parseDecimal(document.getElementById('precioBase').dataset.base);
+            let extras = 0;
+
+            document.querySelectorAll('.criterio-check').forEach(chk => {
+                if (chk.checked) {
+                    const costoInput = chk.closest('.form-check').querySelector('.criterio-costo');
+                    extras += parseDecimal(costoInput.value);
+                }
+            });
+
+            const subtotal = base + extras;
+            const iva = +(subtotal * TASA_IVA).toFixed(2);
+            const total = +(subtotal + iva).toFixed(2);
+
+            document.getElementById('subtotalInput').value = `₡${subtotal.toFixed(2)}`;
+            document.getElementById('ivaInput').value = `₡${iva.toFixed(2)}`;
+            document.getElementById('totalInput').value = `₡${total.toFixed(2)}`;
+            document.getElementById('personalizado_Total').value = total;
+        }
+
+        function beforeSubmitSetTotals() {
+            recalcularTotales();
+        }
+
+        document.addEventListener('DOMContentLoaded', recalcularTotales);
+    </script>
+}
+ *@
